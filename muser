@@ -1,0 +1,23 @@
+#!/bin/sh
+
+echo -n "$1: "
+NAME=$(curl "https://moodle2.leibniz-gymnasium-oestringen.de/moodle/user/profile.php?id=$1&showallcourses=1" \
+  -H 'User-Agent: ' \
+  -H "Cookie: MoodleSession=$(msession)" --silent \
+  | grep -o 'itemprop="title".\{1,100\}</span></a' | grep -o '>.\{1,\}</s' | sed -e 's/^>//;s/<\/s$//')
+
+if [[ $NAME = "" ]]
+then
+	echo -ne "\n"
+  exit 1
+fi
+
+VNAME=$(echo $NAME awk '{ print $1 }')  # Vorname
+NNAME=$(echo $NAME awk '{ print $2 }')  # Nachname
+
+echo $NAME
+
+# To "remember" which id corresponds to which username:
+# doas mysql -p moodle -u root --password="" << EOF
+#	 INSERT INTO users VALUES ($1, "$NAME", "$VNAME", "$NNAME");
+# EOF

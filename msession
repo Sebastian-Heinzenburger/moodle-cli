@@ -1,0 +1,22 @@
+#!/bin/zsh
+
+FILE=~/.cache/moodle_session
+
+# /etc/moodle_login:
+# Max.Mustermann
+# passwort1234
+
+LOGIN_NAME=$(head -1 /etc/moodle_login)
+LOGIN_PASSWD=$(tail -1 /etc/moodle_login)
+
+if [[ -f "$FILE" ]] # cache
+then
+	export MOODLE_SESSION=$(cat $FILE)
+else
+  export MOODLE_SESSION=$(curl 'https://moodle2.leibniz-gymnasium-oestringen.de/moodle/blocks/exa2fa/login/' -X POST \
+    --data-raw "ajax=true&username=$LOGIN_NAME&password=$LOGIN_PASSWD" \
+    -c - --silent |  awk '{ print $NF }' | tail -1)
+	echo $MOODLE_SESSION > $FILE
+fi
+
+echo $MOODLE_SESSION

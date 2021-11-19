@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# This script requires the msession script in order to receive a moodle session token
+# The first argument is the user-id, the second argument is the course id
+
+echo -n "$1: "
+DETAILS=$(curl "https://moodle2.leibniz-gymnasium-oestringen.de/moodle/user/view.php?id=$1&course=$2&showallcourses=1" \
+  -H 'User-Agent: ' --silent \
+  -H "Cookie: MoodleSession=$(msession)" \
+  | grep "@" | grep -o 'dd>.\+\?</dd' | sed -e 's/<\/dd>.\+\?<dd>/;/g;s/dd//g;s/<\///g;s/>//g')
+    # Some regex magic to parse the html horror
+
+if [[ $DETAILS = "" ]]
+then
+  echo -ne "\n"
+  exit 1
+fi
+
+EMAIL=$(echo $DETAILS | awk -F ";" '{ print $1 }' )
+ORT=$(echo $DETAILS | awk -F ";" '{ print $2 }' )
+echo "$EMAIL;$ORT"

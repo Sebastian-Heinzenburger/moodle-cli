@@ -1,0 +1,3 @@
+#!/bin/sh
+
+rm /home/sebastian/.cache/moodle_session

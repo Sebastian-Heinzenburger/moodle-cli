@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# This script will be depreciated by mdetails and is vastly inferior
+# due to only being able to see email adresses that are public to all.
+# mdetails parses the profile in the context of a shared course.
+# This script requires the msession script in order to receive a moodle session token
+# The only argument is the user-id
+
+echo -n "$1: "
+
+MAIL=$(curl "https://moodle2.leibniz-gymnasium-oestringen.de/moodle/user/view.php?id=$1&course=1809&showallcourses=1" \
+  -H 'User-Agent: ' --silent \
+  -H "Cookie: MoodleSession=$(msession)" \
+  | grep "@" | sed -e "s/E-Mail-Adresse<\/dt><dd>/\n/g" | sed -e "s/<\/dd>/\n/g" | grep "@")
+
+if [[ $MAIL = "" ]]
+then
+	echo -ne "\n"
+  exit 1
+fi
+
+echo $MAIL
