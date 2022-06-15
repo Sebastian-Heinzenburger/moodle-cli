@@ -18,8 +18,12 @@ do
   KLASSE=$(echo $COURSE | awk -F"-" '{ print $2 }' | xargs)
   LEHRER=$(echo $COURSE | awk -F"-" '{ print $3 }' | xargs)
   JAHR=$(echo $COURSE | awk -F"-" '{ print $4 }' | xargs)
+
   echo -e "\nSchueler:$1;Kurs-ID: $ID;Fach: $FACH;Klasse: $KLASSE;Lehrer:$LEHRER;Jahr: $JAHR"
+
+# remember the course names
 doas mysql -p moodle -u root --password="" << EOF
  INSERT INTO courses VALUES ($ID, "$FACH", "$KLASSE", "$LEHRER", "$JAHR");
 EOF
+
 done <<< "$COURSES"
